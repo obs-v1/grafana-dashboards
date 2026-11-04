@@ -1,0 +1,985 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bankobs-service-red
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: "BankObs"
+data:
+  service-red.json: |-
+    {
+      "uid": "bankobs-service-red",
+      "title": "Service RED",
+      "description": "Per-service rate, errors, and duration from http_server_requests_total and http_server_request_duration_seconds (labels: service, path, status as 2xx/4xx/5xx). Pods are scrape targets up. Process restarts are changes in process_start_time_seconds; kube-state restart series are not scraped for bankobs. Error logs are Loki streams with service_name and detected_level=error.",
+      "tags": [
+        "bankobs",
+        "red"
+      ],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "30s",
+      "time": {
+        "from": "now-1h",
+        "to": "now"
+      },
+      "graphTooltip": 1,
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "links": [],
+      "annotations": {
+        "list": []
+      },
+      "templating": {
+        "list": [
+          {
+            "name": "ds_prom",
+            "label": "Prometheus",
+            "type": "datasource",
+            "query": "prometheus",
+            "refresh": 1,
+            "multi": false,
+            "includeAll": false,
+            "hide": 0,
+            "current": {}
+          },
+          {
+            "name": "ds_loki",
+            "label": "Loki",
+            "type": "datasource",
+            "query": "loki",
+            "refresh": 1,
+            "multi": false,
+            "includeAll": false,
+            "hide": 0,
+            "current": {}
+          },
+          {
+            "name": "ds_jaeger",
+            "label": "Jaeger",
+            "type": "datasource",
+            "query": "jaeger",
+            "refresh": 1,
+            "multi": false,
+            "includeAll": false,
+            "hide": 0,
+            "current": {}
+          },
+          {
+            "name": "namespace",
+            "label": "Namespace",
+            "type": "query",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${ds_prom}"
+            },
+            "definition": "label_values(http_server_requests_total{job=~\"bankobs/.*\"}, namespace)",
+            "query": {
+              "qryType": 1,
+              "query": "label_values(http_server_requests_total{job=~\"bankobs/.*\"}, namespace)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            },
+            "refresh": 2,
+            "sort": 1,
+            "multi": false,
+            "includeAll": false,
+            "hide": 0,
+            "current": {
+              "selected": true,
+              "text": "bankobs",
+              "value": "bankobs"
+            },
+            "options": [
+              {
+                "selected": true,
+                "text": "bankobs",
+                "value": "bankobs"
+              }
+            ]
+          },
+          {
+            "name": "service",
+            "label": "Service",
+            "type": "query",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${ds_prom}"
+            },
+            "definition": "label_values(http_server_requests_total{namespace=~\"$namespace\",job=~\"bankobs/.*\"}, service)",
+            "query": {
+              "qryType": 1,
+              "query": "label_values(http_server_requests_total{namespace=~\"$namespace\",job=~\"bankobs/.*\"}, service)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            },
+            "refresh": 2,
+            "sort": 1,
+            "multi": true,
+            "includeAll": true,
+            "allValue": ".*",
+            "hide": 0,
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            }
+          }
+        ]
+      },
+      "panels": [
+        {
+          "id": 1,
+          "type": "row",
+          "title": "Rate",
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "panels": []
+        },
+        {
+          "id": 2,
+          "type": "timeseries",
+          "title": "Requests/s by endpoint",
+          "description": "http_server_requests_total by path",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 14,
+            "x": 0,
+            "y": 1
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "sum by (path) (rate(http_server_requests_total{namespace=~\"$namespace\",job=~\"bankobs/.*\",service=~\"$service\"}[$__rate_interval]))",
+              "editorMode": "code",
+              "legendFormat": "{{path}}",
+              "instant": false,
+              "range": true,
+              "exemplar": false,
+              "format": "time_series"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 12,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "id": 3,
+          "type": "timeseries",
+          "title": "Requests/s by status class",
+          "description": "status is already a class: 2xx, 4xx, 5xx",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 10,
+            "x": 14,
+            "y": 1
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "sum by (status) (rate(http_server_requests_total{namespace=~\"$namespace\",job=~\"bankobs/.*\",service=~\"$service\"}[$__rate_interval]))",
+              "editorMode": "code",
+              "legendFormat": "{{status}}",
+              "instant": false,
+              "range": true,
+              "exemplar": false,
+              "format": "time_series"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 12,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "id": 10,
+          "type": "row",
+          "title": "Errors",
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 9
+          },
+          "panels": []
+        },
+        {
+          "id": 11,
+          "type": "stat",
+          "title": "Error %",
+          "description": "5xx as a percent of all requests",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 0,
+            "y": 10
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "100 * (sum(rate(http_server_requests_total{namespace=~\"$namespace\",job=~\"bankobs/.*\",service=~\"$service\",status=\"5xx\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(http_server_requests_total{namespace=~\"$namespace\",job=~\"bankobs/.*\",service=~\"$service\"}[$__rate_interval])) or vector(0), 1e-9)",
+              "editorMode": "code",
+              "legendFormat": "",
+              "instant": false,
+              "range": true,
+              "exemplar": false,
+              "format": "time_series"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 12,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "line"
+                }
+              },
+              "decimals": 2,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 1
+                  },
+                  {
+                    "color": "red",
+                    "value": 5
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "value"
+          }
+        },
+        {
+          "id": 12,
+          "type": "stat",
+          "title": "Errors/s",
+          "description": "4xx + 5xx request rate",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 6,
+            "y": 10
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "sum(rate(http_server_requests_total{namespace=~\"$namespace\",job=~\"bankobs/.*\",service=~\"$service\",status=~\"4xx|5xx\"}[$__rate_interval])) or vector(0)",
+              "editorMode": "code",
+              "legendFormat": "",
+              "instant": false,
+              "range": true,
+              "exemplar": false,
+              "format": "time_series"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 12,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "line"
+                }
+              },
+              "decimals": 2,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 0.05
+                  },
+                  {
+                    "color": "red",
+                    "value": 0.5
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "value"
+          }
+        },
+        {
+          "id": 13,
+          "type": "stat",
+          "title": "Pods up",
+          "description": "scrape targets with up==1",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 12,
+            "y": 10
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "count(up{namespace=~\"$namespace\",job=~\"bankobs/.*\",app=~\"$service\"} == 1) or vector(0)",
+              "editorMode": "code",
+              "legendFormat": "",
+              "instant": false,
+              "range": true,
+              "exemplar": false,
+              "format": "time_series"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 12,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "line"
+                }
+              },
+              "decimals": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "value"
+          }
+        },
+        {
+          "id": 14,
+          "type": "stat",
+          "title": "Process restarts",
+          "description": "changes of process_start_time_seconds over the selected range",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 18,
+            "y": 10
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "sum(changes(process_start_time_seconds{namespace=~\"$namespace\",job=~\"bankobs/.*\",app=~\"$service\"}[$__range])) or vector(0)",
+              "editorMode": "code",
+              "legendFormat": "",
+              "instant": false,
+              "range": true,
+              "exemplar": false,
+              "format": "time_series"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 12,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "line"
+                }
+              },
+              "decimals": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "value"
+          }
+        },
+        {
+          "id": 15,
+          "type": "timeseries",
+          "title": "4xx vs 5xx",
+          "description": "No exception counter is exported on the server histogram; status class is the error split",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 24,
+            "x": 0,
+            "y": 14
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "sum by (status) (rate(http_server_requests_total{namespace=~\"$namespace\",job=~\"bankobs/.*\",service=~\"$service\",status=~\"4xx|5xx\"}[$__rate_interval]))",
+              "editorMode": "code",
+              "legendFormat": "{{status}}",
+              "instant": false,
+              "range": true,
+              "exemplar": false,
+              "format": "time_series"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 12,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 3
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "id": 20,
+          "type": "row",
+          "title": "Duration",
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 21
+          },
+          "panels": []
+        },
+        {
+          "id": 21,
+          "type": "timeseries",
+          "title": "Latency",
+          "description": "histogram_quantile of http_server_request_duration_seconds_bucket",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 14,
+            "x": 0,
+            "y": 22
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "histogram_quantile(0.50, sum by (le) (rate(http_server_request_duration_seconds_bucket{namespace=~\"$namespace\",job=~\"bankobs/.*\",service=~\"$service\"}[$__rate_interval])))",
+              "editorMode": "code",
+              "legendFormat": "p50",
+              "instant": false,
+              "range": true,
+              "exemplar": false,
+              "format": "time_series"
+            },
+            {
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_request_duration_seconds_bucket{namespace=~\"$namespace\",job=~\"bankobs/.*\",service=~\"$service\"}[$__rate_interval])))",
+              "editorMode": "code",
+              "legendFormat": "p95",
+              "instant": false,
+              "range": true,
+              "exemplar": false,
+              "format": "time_series"
+            },
+            {
+              "refId": "C",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "histogram_quantile(0.99, sum by (le) (rate(http_server_request_duration_seconds_bucket{namespace=~\"$namespace\",job=~\"bankobs/.*\",service=~\"$service\"}[$__rate_interval])))",
+              "editorMode": "code",
+              "legendFormat": "p99",
+              "instant": false,
+              "range": true,
+              "exemplar": false,
+              "format": "time_series"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 12,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "line"
+                }
+              },
+              "decimals": 3,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 0.3
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              },
+              "links": [
+                {
+                  "title": "Trace / Latency",
+                  "url": "/d/bankobs-trace-latency/trace-latency?${__url_time_range}&var-ds_prom=${ds_prom}&var-ds_jaeger=${ds_jaeger}&var-namespace=${namespace}&var-service=${service}",
+                  "targetBlank": false,
+                  "keepTime": true,
+                  "type": "link"
+                },
+                {
+                  "title": "Jaeger",
+                  "url": "/explore?schemaVersion=1&orgId=1&panes=%7B%22j%22%3A%7B%22datasource%22%3A%22${ds_jaeger}%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%2C%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22${ds_jaeger}%22}%2C%22queryType%22%3A%22traceql%22%2C%22query%22%3A%22%7B%20resource.service.name%20%3D~%20%5C%22${service}%5C%22%20}%22}%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22}}}",
+                  "targetBlank": false,
+                  "keepTime": true,
+                  "type": "link"
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "links": [
+            {
+              "title": "Trace / Latency",
+              "url": "/d/bankobs-trace-latency/trace-latency?${__url_time_range}&var-ds_prom=${ds_prom}&var-ds_jaeger=${ds_jaeger}&var-namespace=${namespace}&var-service=${service}",
+              "targetBlank": false,
+              "keepTime": true,
+              "type": "link"
+            },
+            {
+              "title": "Jaeger",
+              "url": "/explore?schemaVersion=1&orgId=1&panes=%7B%22j%22%3A%7B%22datasource%22%3A%22${ds_jaeger}%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%2C%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22${ds_jaeger}%22}%2C%22queryType%22%3A%22traceql%22%2C%22query%22%3A%22%7B%20resource.service.name%20%3D~%20%5C%22${service}%5C%22%20}%22}%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22}}}",
+              "targetBlank": false,
+              "keepTime": true,
+              "type": "link"
+            }
+          ]
+        },
+        {
+          "id": 22,
+          "type": "heatmap",
+          "title": "Latency heatmap",
+          "description": "http_server_request_duration_seconds_bucket",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 10,
+            "x": 14,
+            "y": 22
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "sum by (le) (rate(http_server_request_duration_seconds_bucket{namespace=~\"$namespace\",job=~\"bankobs/.*\",service=~\"$service\"}[$__rate_interval]))",
+              "editorMode": "code",
+              "legendFormat": "{{le}}",
+              "instant": false,
+              "range": true,
+              "exemplar": false,
+              "format": "heatmap"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "custom": {}
+            },
+            "overrides": []
+          },
+          "options": {
+            "calculate": false,
+            "calculation": {},
+            "cellGap": 1,
+            "color": {
+              "mode": "scheme",
+              "scheme": "Oranges",
+              "steps": 64,
+              "fill": "dark-orange"
+            },
+            "yAxis": {
+              "unit": "s",
+              "decimals": 3
+            },
+            "tooltip": {
+              "show": true,
+              "yHistogram": false
+            },
+            "legend": {
+              "show": true
+            },
+            "exemplars": {
+              "color": "rgba(255,0,255,0.7)"
+            },
+            "filterValues": {
+              "le": 1e-09
+            },
+            "rowsFrame": {
+              "layout": "auto"
+            }
+          }
+        },
+        {
+          "id": 30,
+          "type": "row",
+          "title": "Logs",
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 30
+          },
+          "panels": []
+        },
+        {
+          "id": 31,
+          "type": "logs",
+          "title": "Recent error logs",
+          "description": "Loki streams for the selected service with detected_level=error",
+          "datasource": {
+            "type": "loki",
+            "uid": "${ds_loki}"
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 24,
+            "x": 0,
+            "y": 31
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "${ds_loki}"
+              },
+              "expr": "{k8s_namespace_name=~\"$namespace\",service_name=~\"$service\"} | detected_level=\"error\"",
+              "queryType": "range",
+              "maxLines": 100
+            }
+          ],
+          "options": {
+            "showTime": true,
+            "showLabels": false,
+            "showCommonLabels": false,
+            "wrapLogMessage": true,
+            "prettifyLogMessage": true,
+            "enableLogDetails": true,
+            "dedupStrategy": "none",
+            "sortOrder": "Descending"
+          }
+        }
+      ]
+    }
