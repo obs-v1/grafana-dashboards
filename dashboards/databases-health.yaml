@@ -1,0 +1,915 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bankobs-databases-health
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: "Infrastructure"
+data:
+  databases-health.json: |-
+    {
+      "uid": "bankobs-databases-health",
+      "title": "Databases \u2014 Health",
+      "description": "BankObs datastores. Oracle, PostgreSQL, Cassandra, and Elasticsearch publish no exporter metrics. MongoDB is the Java driver (mongodb_driver_*) and Redis is the Lettuce client (lettuce_command_*). Hikari/JDBC pools are not assigned to a database because the series has no database label.",
+      "tags": [
+        "bankobs",
+        "databases"
+      ],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "30s",
+      "time": {
+        "from": "now-1h",
+        "to": "now"
+      },
+      "graphTooltip": 1,
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "links": [],
+      "annotations": {
+        "list": []
+      },
+      "templating": {
+        "list": [
+          {
+            "name": "ds_prom",
+            "label": "Prometheus",
+            "type": "datasource",
+            "query": "prometheus",
+            "refresh": 1,
+            "multi": false,
+            "includeAll": false,
+            "hide": 0,
+            "current": {}
+          },
+          {
+            "name": "namespace",
+            "label": "Namespace",
+            "type": "query",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${ds_prom}"
+            },
+            "definition": "label_values(up{job=~\"bankobs/.*\"}, namespace)",
+            "query": {
+              "qryType": 1,
+              "query": "label_values(up{job=~\"bankobs/.*\"}, namespace)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            },
+            "refresh": 2,
+            "sort": 1,
+            "multi": false,
+            "includeAll": false,
+            "hide": 0,
+            "current": {
+              "selected": true,
+              "text": "bankobs",
+              "value": "bankobs"
+            },
+            "options": [
+              {
+                "selected": true,
+                "text": "bankobs",
+                "value": "bankobs"
+              }
+            ]
+          },
+          {
+            "name": "database",
+            "label": "Database",
+            "type": "custom",
+            "query": "Oracle,PostgreSQL,MongoDB,Cassandra,Redis,Elasticsearch",
+            "multi": true,
+            "includeAll": true,
+            "allValue": ".*",
+            "hide": 0,
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "options": [
+              {
+                "text": "All",
+                "value": "$__all",
+                "selected": true
+              },
+              {
+                "text": "Oracle",
+                "value": "Oracle",
+                "selected": false
+              },
+              {
+                "text": "PostgreSQL",
+                "value": "PostgreSQL",
+                "selected": false
+              },
+              {
+                "text": "MongoDB",
+                "value": "MongoDB",
+                "selected": false
+              },
+              {
+                "text": "Cassandra",
+                "value": "Cassandra",
+                "selected": false
+              },
+              {
+                "text": "Redis",
+                "value": "Redis",
+                "selected": false
+              },
+              {
+                "text": "Elasticsearch",
+                "value": "Elasticsearch",
+                "selected": false
+              }
+            ]
+          }
+        ]
+      },
+      "panels": [
+        {
+          "id": 1,
+          "type": "row",
+          "title": "Oracle",
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "panels": []
+        },
+        {
+          "id": 2,
+          "type": "text",
+          "title": "No exporter",
+          "transparent": true,
+          "gridPos": {
+            "h": 5,
+            "w": 24,
+            "x": 0,
+            "y": 1
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "**No exporter.** Nothing in Prometheus identifies the `oracle` pod: no `up` target, no session gauge, and no `process_start_time_seconds`, so up/down and **up since** cannot be computed.\n\nOracle XE first boot (datafiles and init scripts) takes several minutes. That readiness lives on the pod startup probe and is not scraped.\n\nJava services do publish `hikaricp_connections_*` (pool `HikariPool-1`) and `jdbc_connections_*`, but those series have no database label, so they are not shown as Oracle."
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
+        },
+        {
+          "id": 3,
+          "type": "row",
+          "title": "PostgreSQL",
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 6
+          },
+          "panels": []
+        },
+        {
+          "id": 4,
+          "type": "text",
+          "title": "No exporter",
+          "transparent": true,
+          "gridPos": {
+            "h": 3,
+            "w": 24,
+            "x": 0,
+            "y": 7
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "**No exporter.** No `postgres_*` / `pg_*` series and no `up` target for the `postgres` pod. Connections, latency, throughput, errors, and up/down are not available.\n\nUnlabelled Hikari pools on Java services are not treated as PostgreSQL."
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
+        },
+        {
+          "id": 5,
+          "type": "row",
+          "title": "Cassandra",
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 10
+          },
+          "panels": []
+        },
+        {
+          "id": 6,
+          "type": "text",
+          "title": "No exporter",
+          "transparent": true,
+          "gridPos": {
+            "h": 3,
+            "w": 24,
+            "x": 0,
+            "y": 11
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "**No exporter.** No Cassandra or Datastax driver series, and no `up` target for the `cassandra` pod. Connections, latency, throughput, errors, and up/down are not available."
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
+        },
+        {
+          "id": 7,
+          "type": "row",
+          "title": "Elasticsearch",
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 14
+          },
+          "panels": []
+        },
+        {
+          "id": 8,
+          "type": "text",
+          "title": "No exporter",
+          "transparent": true,
+          "gridPos": {
+            "h": 3,
+            "w": 24,
+            "x": 0,
+            "y": 15
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "**No exporter.** No Elasticsearch series, and HTTP client peers are other BankObs services, not `elasticsearch:9200`. Connections, latency, throughput, errors, and up/down are not available."
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
+        },
+        {
+          "id": 9,
+          "type": "row",
+          "title": "MongoDB \u2014 Java driver",
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 18
+          },
+          "panels": []
+        },
+        {
+          "id": 10,
+          "type": "timeseries",
+          "title": "Connections",
+          "description": "mongodb_driver_pool_checkedout vs mongodb_driver_pool_size. server_address is mongodb:27017. Not a mongod exporter.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 0,
+            "y": 19
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "sum(mongodb_driver_pool_checkedout{namespace=~\"$namespace\"})",
+              "editorMode": "code",
+              "legendFormat": "checked out",
+              "instant": false,
+              "range": true,
+              "exemplar": false
+            },
+            {
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "sum(mongodb_driver_pool_size{namespace=~\"$namespace\"})",
+              "editorMode": "code",
+              "legendFormat": "pool size",
+              "instant": false,
+              "range": true,
+              "exemplar": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "decimals": 0,
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 12,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "id": 11,
+          "type": "stat",
+          "title": "Pool saturation",
+          "description": "checked out / pool size",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 3,
+            "x": 6,
+            "y": 19
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "100 * (sum(mongodb_driver_pool_checkedout{namespace=~\"$namespace\"})) / clamp_min(sum(mongodb_driver_pool_size{namespace=~\"$namespace\"}), 1)",
+              "editorMode": "code",
+              "legendFormat": "",
+              "instant": false,
+              "range": true,
+              "exemplar": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 70
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              },
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {}
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "value"
+          }
+        },
+        {
+          "id": 12,
+          "type": "timeseries",
+          "title": "Command latency",
+          "description": "Summary, not a histogram: avg is rate(sum)/rate(count). No p95 buckets are published.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 5,
+            "x": 9,
+            "y": 19
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "(sum(rate(mongodb_driver_commands_seconds_sum{namespace=~\"$namespace\"}[$__rate_interval]))) / clamp_min(sum(rate(mongodb_driver_commands_seconds_count{namespace=~\"$namespace\"}[$__rate_interval])), 1e-9)",
+              "editorMode": "code",
+              "legendFormat": "avg",
+              "instant": false,
+              "range": true,
+              "exemplar": false
+            },
+            {
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "max(mongodb_driver_commands_seconds_max{namespace=~\"$namespace\"})",
+              "editorMode": "code",
+              "legendFormat": "max",
+              "instant": false,
+              "range": true,
+              "exemplar": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "decimals": 3,
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 12,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "id": 13,
+          "type": "timeseries",
+          "title": "Commands/s",
+          "description": "rate of mongodb_driver_commands_seconds_count",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 4,
+            "x": 14,
+            "y": 19
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "sum(rate(mongodb_driver_commands_seconds_count{namespace=~\"$namespace\"}[$__rate_interval]))",
+              "editorMode": "code",
+              "legendFormat": "ops",
+              "instant": false,
+              "range": true,
+              "exemplar": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "decimals": 3,
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 12,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "id": 14,
+          "type": "stat",
+          "title": "Command errors",
+          "description": "status != \"SUCCESS\" as a percent of commands. Observed status values are SUCCESS.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 3,
+            "x": 18,
+            "y": 19
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "100 * (sum(rate(mongodb_driver_commands_seconds_count{namespace=~\"$namespace\",status!=\"SUCCESS\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(mongodb_driver_commands_seconds_count{namespace=~\"$namespace\"}[$__rate_interval])) or vector(0), 1e-9)",
+              "editorMode": "code",
+              "legendFormat": "",
+              "instant": false,
+              "range": true,
+              "exemplar": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 2,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 1
+                  },
+                  {
+                    "color": "red",
+                    "value": 5
+                  }
+                ]
+              },
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {}
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "value"
+          }
+        },
+        {
+          "id": 15,
+          "type": "text",
+          "title": "Up / down",
+          "transparent": true,
+          "gridPos": {
+            "h": 8,
+            "w": 3,
+            "x": 21,
+            "y": 19
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "**No exporter.** Driver series only show that clients are publishing. There is no `up` target for the `mongodb` pod."
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
+        },
+        {
+          "id": 16,
+          "type": "row",
+          "title": "Redis \u2014 Lettuce client",
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 27
+          },
+          "panels": []
+        },
+        {
+          "id": 17,
+          "type": "text",
+          "title": "Connections",
+          "transparent": true,
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 0,
+            "y": 28
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "**No series.** Lettuce publishes command timings only (`lettuce_command_completion_seconds_*`). There is no client-count or max-connection gauge, and no `redis_exporter`."
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
+        },
+        {
+          "id": 18,
+          "type": "timeseries",
+          "title": "Command latency",
+          "description": "Summary avg and max. remote label is redis/<pod-ip>:6379. No histogram, so no p95.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 6,
+            "y": 28
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "(sum(rate(lettuce_command_completion_seconds_sum{namespace=~\"$namespace\"}[$__rate_interval]))) / clamp_min(sum(rate(lettuce_command_completion_seconds_count{namespace=~\"$namespace\"}[$__rate_interval])), 1e-9)",
+              "editorMode": "code",
+              "legendFormat": "avg",
+              "instant": false,
+              "range": true,
+              "exemplar": false
+            },
+            {
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "max(lettuce_command_completion_seconds_max{namespace=~\"$namespace\"})",
+              "editorMode": "code",
+              "legendFormat": "max",
+              "instant": false,
+              "range": true,
+              "exemplar": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "decimals": 3,
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 12,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 0.05
+                  },
+                  {
+                    "color": "red",
+                    "value": 0.2
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "id": 19,
+          "type": "timeseries",
+          "title": "Commands/s",
+          "description": "rate of lettuce_command_completion_seconds_count by command",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${ds_prom}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 12,
+            "y": 28
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${ds_prom}"
+              },
+              "expr": "sum by (command) (rate(lettuce_command_completion_seconds_count{namespace=~\"$namespace\"}[$__rate_interval]))",
+              "editorMode": "code",
+              "legendFormat": "{{command}}",
+              "instant": false,
+              "range": true,
+              "exemplar": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "decimals": 3,
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 12,
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": []
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "id": 20,
+          "type": "text",
+          "title": "Errors",
+          "transparent": true,
+          "gridPos": {
+            "h": 8,
+            "w": 3,
+            "x": 18,
+            "y": 28
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "**No error series.** Lettuce command metrics have no status or error label."
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
+        },
+        {
+          "id": 21,
+          "type": "text",
+          "title": "Up / down",
+          "transparent": true,
+          "gridPos": {
+            "h": 8,
+            "w": 3,
+            "x": 21,
+            "y": 28
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "**No exporter.** No `up` target for the `redis` pod. Command traffic only shows the client is calling Redis."
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
+        }
+      ]
+    }
