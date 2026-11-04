@@ -83,19 +83,6 @@ data:
       "links": [],
       "panels": [
         {
-          "id": 1,
-          "type": "row",
-          "title": "Fleet",
-          "collapsed": false,
-          "gridPos": {
-            "h": 1,
-            "w": 24,
-            "x": 0,
-            "y": 0
-          },
-          "panels": []
-        },
-        {
           "id": 2,
           "type": "stat",
           "title": "Request rate",
@@ -104,10 +91,10 @@ data:
             "uid": "${ds_prom}"
           },
           "gridPos": {
-            "h": 5,
+            "h": 3,
             "w": 5,
             "x": 0,
-            "y": 1
+            "y": 0
           },
           "targets": [
             {
@@ -145,7 +132,7 @@ data:
           },
           "options": {
             "colorMode": "background",
-            "graphMode": "area",
+            "graphMode": "none",
             "justifyMode": "auto",
             "orientation": "auto",
             "reduceOptions": {
@@ -168,10 +155,10 @@ data:
             "uid": "${ds_prom}"
           },
           "gridPos": {
-            "h": 5,
+            "h": 3,
             "w": 5,
             "x": 5,
-            "y": 1
+            "y": 0
           },
           "targets": [
             {
@@ -217,7 +204,7 @@ data:
           },
           "options": {
             "colorMode": "background",
-            "graphMode": "area",
+            "graphMode": "none",
             "justifyMode": "auto",
             "orientation": "auto",
             "reduceOptions": {
@@ -240,10 +227,10 @@ data:
             "uid": "${ds_prom}"
           },
           "gridPos": {
-            "h": 5,
+            "h": 3,
             "w": 5,
             "x": 10,
-            "y": 1
+            "y": 0
           },
           "targets": [
             {
@@ -289,7 +276,7 @@ data:
           },
           "options": {
             "colorMode": "background",
-            "graphMode": "area",
+            "graphMode": "none",
             "justifyMode": "auto",
             "orientation": "auto",
             "reduceOptions": {
@@ -312,10 +299,10 @@ data:
             "uid": "${ds_prom}"
           },
           "gridPos": {
-            "h": 5,
+            "h": 3,
             "w": 5,
             "x": 15,
-            "y": 1
+            "y": 0
           },
           "targets": [
             {
@@ -357,7 +344,7 @@ data:
           },
           "options": {
             "colorMode": "background",
-            "graphMode": "area",
+            "graphMode": "none",
             "justifyMode": "auto",
             "orientation": "auto",
             "reduceOptions": {
@@ -380,10 +367,10 @@ data:
             "uid": "${ds_prom}"
           },
           "gridPos": {
-            "h": 5,
+            "h": 3,
             "w": 4,
             "x": 20,
-            "y": 1
+            "y": 0
           },
           "targets": [
             {
@@ -425,7 +412,7 @@ data:
           },
           "options": {
             "colorMode": "background",
-            "graphMode": "area",
+            "graphMode": "none",
             "justifyMode": "auto",
             "orientation": "auto",
             "reduceOptions": {
@@ -440,19 +427,6 @@ data:
           }
         },
         {
-          "id": 10,
-          "type": "row",
-          "title": "Traffic by tier",
-          "collapsed": false,
-          "gridPos": {
-            "h": 1,
-            "w": 24,
-            "x": 0,
-            "y": 6
-          },
-          "panels": []
-        },
-        {
           "id": 11,
           "type": "timeseries",
           "title": "Request rate by tier",
@@ -462,10 +436,10 @@ data:
             "uid": "${ds_prom}"
           },
           "gridPos": {
-            "h": 8,
-            "w": 24,
+            "h": 10,
+            "w": 8,
             "x": 0,
-            "y": 7
+            "y": 3
           },
           "targets": [
             {
@@ -510,32 +484,16 @@ data:
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
-              "calcs": [
-                "mean",
-                "last"
-              ]
+              "calcs": []
             },
             "tooltip": {
               "mode": "multi",
               "sort": "desc"
             }
           }
-        },
-        {
-          "id": 20,
-          "type": "row",
-          "title": "Errors by tier",
-          "collapsed": false,
-          "gridPos": {
-            "h": 1,
-            "w": 24,
-            "x": 0,
-            "y": 15
-          },
-          "panels": []
         },
         {
           "id": 21,
@@ -547,10 +505,10 @@ data:
             "uid": "${ds_prom}"
           },
           "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 16
+            "h": 10,
+            "w": 8,
+            "x": 8,
+            "y": 3
           },
           "targets": [
             {
@@ -612,32 +570,16 @@ data:
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
-              "calcs": [
-                "mean",
-                "last"
-              ]
+              "calcs": []
             },
             "tooltip": {
               "mode": "multi",
               "sort": "desc"
             }
           }
-        },
-        {
-          "id": 30,
-          "type": "row",
-          "title": "Latency by tier",
-          "collapsed": false,
-          "gridPos": {
-            "h": 1,
-            "w": 24,
-            "x": 0,
-            "y": 24
-          },
-          "panels": []
         },
         {
           "id": 31,
@@ -649,10 +591,10 @@ data:
             "uid": "${ds_prom}"
           },
           "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 25
+            "h": 10,
+            "w": 8,
+            "x": 16,
+            "y": 3
           },
           "targets": [
             {
@@ -740,32 +682,16 @@ data:
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
-              "calcs": [
-                "mean",
-                "last"
-              ]
+              "calcs": []
             },
             "tooltip": {
               "mode": "multi",
               "sort": "desc"
             }
           }
-        },
-        {
-          "id": 40,
-          "type": "row",
-          "title": "Saturation",
-          "collapsed": false,
-          "gridPos": {
-            "h": 1,
-            "w": 24,
-            "x": 0,
-            "y": 33
-          },
-          "panels": []
         },
         {
           "id": 41,
@@ -777,10 +703,10 @@ data:
             "uid": "${ds_prom}"
           },
           "gridPos": {
-            "h": 8,
-            "w": 12,
+            "h": 9,
+            "w": 6,
             "x": 0,
-            "y": 34
+            "y": 13
           },
           "targets": [
             {
@@ -825,13 +751,10 @@ data:
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
-              "calcs": [
-                "mean",
-                "last"
-              ]
+              "calcs": []
             },
             "tooltip": {
               "mode": "multi",
@@ -849,10 +772,10 @@ data:
             "uid": "${ds_prom}"
           },
           "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 34
+            "h": 9,
+            "w": 6,
+            "x": 6,
+            "y": 13
           },
           "targets": [
             {
@@ -897,13 +820,10 @@ data:
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
-              "calcs": [
-                "mean",
-                "last"
-              ]
+              "calcs": []
             },
             "tooltip": {
               "mode": "multi",
@@ -912,32 +832,19 @@ data:
           }
         },
         {
-          "id": 50,
-          "type": "row",
-          "title": "Hottest services",
-          "collapsed": false,
-          "gridPos": {
-            "h": 1,
-            "w": 24,
-            "x": 0,
-            "y": 42
-          },
-          "panels": []
-        },
-        {
           "id": 51,
           "type": "table",
-          "title": "Top 5 services by error %",
+          "title": "Top 5 by error %",
           "description": "Row links to the Service RED dashboard, passing the service name.",
           "datasource": {
             "type": "prometheus",
             "uid": "${ds_prom}"
           },
           "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 43
+            "h": 9,
+            "w": 6,
+            "x": 12,
+            "y": 13
           },
           "targets": [
             {
@@ -1063,17 +970,17 @@ data:
         {
           "id": 52,
           "type": "table",
-          "title": "Top 5 services by p95 latency",
+          "title": "Top 5 by p95",
           "description": "Row links to the Service RED dashboard, passing the service name.",
           "datasource": {
             "type": "prometheus",
             "uid": "${ds_prom}"
           },
           "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 43
+            "h": 9,
+            "w": 6,
+            "x": 18,
+            "y": 13
           },
           "targets": [
             {
